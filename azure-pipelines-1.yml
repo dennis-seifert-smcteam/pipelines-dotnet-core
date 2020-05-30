@@ -7,7 +7,7 @@ trigger:
 - master
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'windows-latest'
 
 variables:
   buildConfiguration: 'Release'
@@ -15,3 +15,26 @@ variables:
 steps:
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'
+    feedsToUse: 'select'
+    vstsFeed: 'my-vsts-feed' # A series of numbers and letters
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    arguments: '--configuration $(buildConfiguration)'
+  displayName: 'dotnet build $(buildConfiguration)'
+  
+# Copy files
+# Copy files from a source folder to a target folder using patterns matching file paths (not folder paths)
+- task: CopyFiles@2
+  inputs:
+    #sourceFolder: # Optional
+    contents: '**\bin**' 
+    targetFolder: $(build.artifactstagingdirectory)
+    #cleanTargetFolder: false # Optional
+    overWrite: true # Optional
+    #flattenFolders: false # Optional
+    #preserveTimestamp: false # Optional
